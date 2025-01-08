@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import PostList from './components/PostList';
-import PostForm from './components/PostForm';
+import { useState, useEffect } from "react";
+import PostList from "./components/PostList";
+import PostForm from "./components/PostForm";
 
 export function App() {
   const [posts, setPosts] = useState([]);
@@ -10,8 +10,8 @@ export function App() {
     // @todo: Implementar a função para buscar os posts da API
   }, []);
 
-  const handleCreatePost = async (data) => {
-    // @todo: Implementar a função para criar um novo post
+  const handleCreatePost = (newPost) => {
+    setPosts((prevPosts) => [newPost, ...prevPosts]);
   };
 
   const handleUpdatePost = async (id, data) => {
@@ -24,14 +24,21 @@ export function App() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
-      <h1 className="text-3xl font-bold text-center text-blue-600 mb-6">Gerenciador de Posts</h1>
+      <h1 className="text-3xl font-bold text-center text-blue-600 mb-6">
+        Gerenciador de Posts
+      </h1>
       <div className="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-6">
         <PostForm
-          onSubmit={editingPost ? handleUpdatePost : handleCreatePost}
+          onSubmit={editingPost ? handleUpdatePost : undefined}
           editingPost={editingPost}
           setEditingPost={setEditingPost}
+          onPostCreated={handleCreatePost}
         />
-        <PostList posts={posts} onEdit={setEditingPost} onDelete={handleDeletePost} />
+        <PostList
+          posts={posts}
+          onEdit={setEditingPost}
+          onDelete={handleDeletePost}
+        />
       </div>
     </div>
   );

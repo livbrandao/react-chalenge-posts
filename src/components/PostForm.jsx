@@ -1,25 +1,47 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
-const PostForm = ({ onSubmit, editingPost, setEditingPost }) => {
-  const [title, setTitle] = useState('');
-  const [body, setBody] = useState('');
+const PostForm = ({ onSubmit, editingPost, setEditingPost, onPostCreated }) => {
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (editingPost) {
       setTitle(editingPost.title);
       setBody(editingPost.body);
     } else {
-      setTitle('');
-      setBody('');
+      setTitle("");
+      setBody("");
     }
   }, [editingPost]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (editingPost) {
-      onSubmit(editingPost.id, { title, body });
-    } else {
-      onSubmit({ title, body });
+    setLoading(true);
+
+    try {
+      const response = await fetch(
+        editingPost
+          ? `https://jsonplaceholder.typicode.com/posts/${editingPost.id}`
+          : "https://jsonplaceholder.typicode.com/posts",
+        {
+          method: editingPost ? "PUT" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, body }),
+        }
+      );
+      const result = await response.json();
+      if (editingPost) {
+        onSubmit(editingPost.id, result); // Atualizar post
+      } else {
+        onPostCreated(result); // Criar novo post
+      }
+      setTitle("");
+      setBody("");
+    } catch (error) {
+      console.error("Erro ao salvar post:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -47,9 +69,14 @@ const PostForm = ({ onSubmit, editingPost, setEditingPost }) => {
       <div className="flex items-center space-x-4">
         <button
           type="submit"
-          className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600"
+          className={`px-4 py-2 rounded-lg text-white ${
+            loading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-blue-500 hover:bg-blue-600"
+          }`}
+          disabled={loading}
         >
-          {editingPost ? 'Atualizar' : 'Criar'}
+          {loading ? "Aguarde..." : editingPost ? "Atualizar" : "Criar"}
         </button>
         {editingPost && (
           <button
