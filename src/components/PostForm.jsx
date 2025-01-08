@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { v4 as uuidv4 } from "uuid";
 
 const PostForm = ({ onSubmit, editingPost, setEditingPost, onPostCreated }) => {
   const [title, setTitle] = useState("");
@@ -20,6 +21,12 @@ const PostForm = ({ onSubmit, editingPost, setEditingPost, onPostCreated }) => {
     setLoading(true);
 
     try {
+      const postData = {
+        id: editingPost ? editingPost.id : uuidv4(), // ID único para novos posts
+        title,
+        body,
+      };
+
       const response = await fetch(
         editingPost
           ? `https://jsonplaceholder.typicode.com/posts/${editingPost.id}`
@@ -27,14 +34,14 @@ const PostForm = ({ onSubmit, editingPost, setEditingPost, onPostCreated }) => {
         {
           method: editingPost ? "PUT" : "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title, body }),
+          body: JSON.stringify(postData),
         }
       );
       const result = await response.json();
       if (editingPost) {
         onSubmit(editingPost.id, result); // Atualizar post
       } else {
-        onPostCreated(result); // Criar novo post
+        onPostCreated(postData); // Criar novo post
       }
       setTitle("");
       setBody("");
