@@ -4,6 +4,7 @@ const PostForm = ({ onSubmit, editingPost, setEditingPost }) => {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (editingPost) {
@@ -13,10 +14,24 @@ const PostForm = ({ onSubmit, editingPost, setEditingPost }) => {
       setTitle("");
       setBody("");
     }
+    setErrors({});
   }, [editingPost]);
+
+  const validate = () => {
+    const validationErrors = {};
+    if (!title.trim()) validationErrors.title = "Preenchimento obrigatório.";
+    if (!body.trim()) validationErrors.body = "Preenchimento obrigatório.";
+    if (title.length > 100) validationErrors.title = "Máximo 100 caracteres.";
+    if (body.length > 500) validationErrors.body = "Máximo 500 caracteres.";
+
+    setErrors(validationErrors);
+    return Object.keys(validationErrors).length === 0;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validate()) return;
+
     setLoading(true);
 
     try {
@@ -42,6 +57,9 @@ const PostForm = ({ onSubmit, editingPost, setEditingPost }) => {
           onChange={(e) => setTitle(e.target.value)}
           className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
+        {errors.title && (
+          <p className="text-red-500 text-sm mt-1">{errors.title}</p>
+        )}
       </div>
       <div className="mb-4">
         <label className="block text-gray-700 font-bold mb-2">Conteúdo</label>
@@ -51,6 +69,9 @@ const PostForm = ({ onSubmit, editingPost, setEditingPost }) => {
           onChange={(e) => setBody(e.target.value)}
           className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
+        {errors.body && (
+          <p className="text-red-500 text-sm mt-1">{errors.body}</p>
+        )}
       </div>
       <div className="flex items-center space-x-4">
         <button
