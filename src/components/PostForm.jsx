@@ -33,12 +33,11 @@ const PostForm = ({ onSubmit, editingPost, setEditingPost }) => {
     if (!validate()) return;
 
     setLoading(true);
-
     try {
       await onSubmit({ id: editingPost?.id, title, body });
+
       setTitle("");
       setBody("");
-      setEditingPost(null);
     } catch (error) {
       console.error("Erro ao salvar post:", error);
     } finally {
@@ -83,7 +82,13 @@ const PostForm = ({ onSubmit, editingPost, setEditingPost }) => {
           }`}
           disabled={loading}
         >
-          {loading ? "Aguarde..." : editingPost ? "Atualizar" : "Criar"}
+          {loading ? (
+            <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-white"></div>
+          ) : editingPost ? (
+            "Atualizar"
+          ) : (
+            "Criar"
+          )}
         </button>
         {editingPost && (
           <button

@@ -6,19 +6,9 @@ import PostForm from "./components/PostForm";
 export function App() {
   const [posts, setPosts] = useState([]);
   const [editingPost, setEditingPost] = useState(null);
+  const [message, setMessage] = useState("");
 
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const data = await getPosts();
-        setPosts(data);
-      } catch (error) {
-        console.error("Erro ao buscar posts:", error);
-      }
-    };
-
-    fetchPosts();
-  }, []);
+  useEffect(() => {});
 
   const handleCreatePost = async (newPost) => {
     try {
@@ -34,9 +24,12 @@ export function App() {
         ...prevPosts,
         { ...createdPost, id: generateUniqueId() },
       ]);
+      setMessage("Post criado com sucesso!");
     } catch (error) {
       console.error("Erro ao criar post:", error);
+      setMessage("Erro ao criar o post. Tente novamente.");
     }
+    setTimeout(() => setMessage(""), 3000);
   };
 
   const handleUpdatePost = async (updatedPost) => {
@@ -48,18 +41,24 @@ export function App() {
         )
       );
       setEditingPost(null);
+      setMessage("Post atualizado com sucesso!");
     } catch (error) {
       console.error("Erro ao atualizar post:", error);
+      setMessage("Erro ao atualizar o post. Tente novamente.");
     }
+    setTimeout(() => setMessage(""), 3000);
   };
 
   const handleDeletePost = async (id) => {
     try {
       await deletePost(id);
       setPosts((prevPosts) => prevPosts.filter((post) => post.id !== id));
+      setMessage("Post escluído com sucesso!");
     } catch (error) {
       console.error("Erro ao excluir post:", error);
+      setMessage("Erro ao excluir o post. Tente novamente.");
     }
+    setTimeout(() => setMessage(""), 3000);
   };
 
   return (
@@ -68,6 +67,17 @@ export function App() {
         Gerenciador de Posts
       </h1>
       <div className="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-6">
+        {message && (
+          <div
+            className={`mb-4 p-2 rounded-lg text-center ${
+              message.includes("sucesso")
+                ? "bg-green-100 text-green-800"
+                : "bg-red-100 text-red-800"
+            }`}
+          >
+            {message}
+          </div>
+        )}
         <PostForm
           onSubmit={editingPost ? handleUpdatePost : handleCreatePost}
           editingPost={editingPost}
