@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { v4 as uuidv4 } from "uuid";
+import { createPost, updatePost, deletePost } from "./services/api.js";
 import PostList from "./components/PostList";
 import PostForm from "./components/PostForm";
 
@@ -8,23 +8,58 @@ export function App() {
   const [editingPost, setEditingPost] = useState(null);
 
   useEffect(() => {
-    // @todo: Implementar a função para buscar os posts da API
+    const fetchPosts = async () => {
+      try {
+        const data = await getPosts();
+        setPosts(data);
+      } catch (error) {
+        console.error("Erro ao buscar posts:", error);
+      }
+    };
+
+    fetchPosts();
   }, []);
 
-  const handleCreatePost = (newPost) => {
-    const postWithUniqueId = { ...newPost, id: uuidv4() }; // Garantindo ID único
-    setPosts((prevPosts) => [...prevPosts, postWithUniqueId]);
+  const handleCreatePost = async (newPost) => {
+    try {
+      const createdPost = await createPost(newPost);
+      const generateUniqueId = () => {
+        let id;
+        do {
+          id = Math.floor(Math.random() * 101);
+        } while (posts.some((post) => post.id === id));
+        return id;
+      };
+      setPosts((prevPosts) => [
+        ...prevPosts,
+        { ...createdPost, id: generateUniqueId() },
+      ]);
+    } catch (error) {
+      console.error("Erro ao criar post:", error);
+    }
   };
 
-  const handleUpdatedPost = (updatedPost) => {
-    setPosts((prevPosts) =>
-      prevPosts.map((post) => (post.id === updatedPost.id ? updatedPost : post))
-    );
-    setEditingPost(null);
+  const handleUpdatePost = async (updatedPost) => {
+    try {
+      const postUpdated = await updatePost(updatedPost.id, updatedPost);
+      setPosts((prevPosts) =>
+        prevPosts.map((post) =>
+          post.id === updatedPost.id ? postUpdated : post
+        )
+      );
+      setEditingPost(null);
+    } catch (error) {
+      console.error("Erro ao atualizar post:", error);
+    }
   };
 
-  const handleDeletePost = (postId) => {
-    setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId)); // Exclui o post
+  const handleDeletePost = async (id) => {
+    try {
+      await deletePost(id);
+      setPosts((prevPosts) => prevPosts.filter((post) => post.id !== id));
+    } catch (error) {
+      console.error("Erro ao excluir post:", error);
+    }
   };
 
   return (
@@ -37,7 +72,6 @@ export function App() {
           onSubmit={editingPost ? handleUpdatePost : handleCreatePost}
           editingPost={editingPost}
           setEditingPost={setEditingPost}
-          onPostCreated={handleCreatePost}
         />
         <PostList
           posts={posts}

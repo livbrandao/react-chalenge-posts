@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { v4 as uuidv4 } from "uuid";
 
-const PostForm = ({ onSubmit, editingPost, setEditingPost, onPostCreated }) => {
+const PostForm = ({ onSubmit, editingPost, setEditingPost }) => {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [loading, setLoading] = useState(false);
@@ -21,30 +20,10 @@ const PostForm = ({ onSubmit, editingPost, setEditingPost, onPostCreated }) => {
     setLoading(true);
 
     try {
-      const postData = {
-        id: editingPost ? editingPost.id : uuidv4(), // ID único para novos posts
-        title,
-        body,
-      };
-
-      const response = await fetch(
-        editingPost
-          ? `https://jsonplaceholder.typicode.com/posts/${editingPost.id}`
-          : "https://jsonplaceholder.typicode.com/posts",
-        {
-          method: editingPost ? "PUT" : "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(postData),
-        }
-      );
-      const result = await response.json();
-      if (editingPost) {
-        onSubmit(editingPost.id, result); // Atualizar post
-      } else {
-        onPostCreated(postData); // Criar novo post
-      }
+      await onSubmit({ id: editingPost?.id, title, body });
       setTitle("");
       setBody("");
+      setEditingPost(null);
     } catch (error) {
       console.error("Erro ao salvar post:", error);
     } finally {
