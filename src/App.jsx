@@ -16,19 +16,15 @@ export function App() {
     setPosts((prevPosts) => [...prevPosts, postWithUniqueId]);
   };
 
-  const handleUpdatePost = async (id, data) => {
-    // @todo: Implementar a função para atualizar um post existente
+  const handleUpdatedPost = (updatedPost) => {
+    setPosts((prevPosts) =>
+      prevPosts.map((post) => (post.id === updatedPost.id ? updatedPost : post))
+    );
+    setEditingPost(null);
   };
 
-  const handleDeletePost = async (id) => {
-    try {
-      await fetch(`https://jsonplaceholder.typicode.com/posts/${id}`, {
-        method: "DELETE",
-      });
-      setPosts((prevPosts) => prevPosts.filter((post) => post.id !== id));
-    } catch (error) {
-      console.error("Erro ao excluir post:", error);
-    }
+  const handleDeletePost = (postId) => {
+    setPosts((prevPosts) => prevPosts.filter((post) => post.id !== postId)); // Exclui o post
   };
 
   return (

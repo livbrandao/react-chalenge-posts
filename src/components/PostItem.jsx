@@ -1,15 +1,4 @@
 const PostItem = ({ post, onEdit, onDelete }) => {
-  const handleDelete = async () => {
-    try {
-      await fetch(`https://jsonplaceholder.typicode.com/posts/${post.id}`, {
-        method: "DELETE",
-      });
-      onDelete(post.id);
-    } catch (error) {
-      console.error("Erro ao excluir post:", error);
-    }
-  };
-
   return (
     <div className="p-4 bg-gray-50 border rounded-lg shadow-sm">
       <h2 className="text-xl font-bold text-gray-800">{post.title}</h2>
@@ -22,7 +11,7 @@ const PostItem = ({ post, onEdit, onDelete }) => {
           Editar
         </button>
         <button
-          onClick={handleDelete}
+          onClick={() => onDelete(post.id)}
           className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
         >
           Excluir
