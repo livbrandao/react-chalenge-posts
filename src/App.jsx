@@ -63,7 +63,7 @@ export function App() {
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
-      <h1 className="text-3xl font-bold text-center text-blue-600 mb-6">
+      <h1 className="text-2xl md:text-3xl font-bold text-center text-blue-600 mb-6 uppercase">
         Gerenciador de Posts
       </h1>
       <div className="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-6">

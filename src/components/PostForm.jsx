@@ -48,7 +48,9 @@ const PostForm = ({ onSubmit, editingPost, setEditingPost }) => {
   return (
     <form onSubmit={handleSubmit} className="mb-6">
       <div className="mb-4">
-        <label className="block text-gray-700 font-bold mb-2">Título</label>
+        <label className="block text-gray-700 font-bold mb-2 text-sm sm:text-base md:text-lg">
+          Título
+        </label>
         <input
           type="text"
           placeholder="Título"
@@ -61,7 +63,9 @@ const PostForm = ({ onSubmit, editingPost, setEditingPost }) => {
         )}
       </div>
       <div className="mb-4">
-        <label className="block text-gray-700 font-bold mb-2">Conteúdo</label>
+        <label className="block text-gray-700 font-bold mb-2 text-sm sm:text-base md:text-lg">
+          Conteúdo
+        </label>
         <textarea
           placeholder="Conteúdo"
           value={body}
@@ -72,10 +76,10 @@ const PostForm = ({ onSubmit, editingPost, setEditingPost }) => {
           <p className="text-red-500 text-sm mt-1">{errors.body}</p>
         )}
       </div>
-      <div className="flex items-center space-x-4">
+      <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
         <button
           type="submit"
-          className={`px-4 py-2 rounded-lg text-white ${
+          className={`w-full md:w-auto px-4 py-2 rounded-lg text-white ${
             loading
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-blue-500 hover:bg-blue-600"
@@ -94,7 +98,7 @@ const PostForm = ({ onSubmit, editingPost, setEditingPost }) => {
           <button
             type="button"
             onClick={() => setEditingPost(null)}
-            className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
+            className="w-full sm:w-auto bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
           >
             Cancelar
           </button>
