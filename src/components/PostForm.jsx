@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const PostForm = ({ onSubmit, editingPost, setEditingPost }) => {
+export default function PostForm({ onSubmit, editingPost, setEditingPost }) {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [loading, setLoading] = useState(false);
@@ -28,13 +28,13 @@ const PostForm = ({ onSubmit, editingPost, setEditingPost }) => {
     return Object.keys(validationErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
     if (!validate()) return;
 
     setLoading(true);
     try {
-      await onSubmit({ id: editingPost?.id, title, body });
+      onSubmit({ id: editingPost?.id, title, body });
 
       setTitle("");
       setBody("");
@@ -106,6 +106,4 @@ const PostForm = ({ onSubmit, editingPost, setEditingPost }) => {
       </div>
     </form>
   );
-};
-
-export default PostForm;
+}

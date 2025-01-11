@@ -1,65 +1,84 @@
-import { useState, useEffect } from "react";
-import { createPost, updatePost, deletePost } from "./services/api.js";
+import React, { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  getPosts,
+  createPost,
+  updatePost,
+  deletePost,
+} from "./services/api.js";
 import PostList from "./components/PostList";
 import PostForm from "./components/PostForm";
 
 export function App() {
-  const [posts, setPosts] = useState([]);
   const [editingPost, setEditingPost] = useState(null);
   const [message, setMessage] = useState("");
+  const queryClient = useQueryClient();
 
-  useEffect(() => {});
+  const {
+    data: posts,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["posts"],
+    queryFn: getPosts,
+  });
 
-  const handleCreatePost = async (newPost) => {
-    try {
-      const createdPost = await createPost(newPost);
-      const generateUniqueId = () => {
-        let id;
-        do {
-          id = Math.floor(Math.random() * 101);
-        } while (posts.some((post) => post.id === id));
-        return id;
-      };
-      setPosts((prevPosts) => [
-        ...prevPosts,
-        { ...createdPost, id: generateUniqueId() },
-      ]);
+  const handleCreatePost = useMutation({
+    mutationFn: createPost,
+    onSuccess: (createdPost) => {
+      queryClient.setQueryData(["posts"], (oldPosts) => {
+        if (oldPosts) {
+          return [...oldPosts, createdPost];
+        }
+        return [createdPost];
+      });
       setMessage("Post criado com sucesso!");
-    } catch (error) {
-      console.error("Erro ao criar post:", error);
+    },
+    onError: () => {
       setMessage("Erro ao criar o post. Tente novamente.");
-    }
-    setTimeout(() => setMessage(""), 3000);
-  };
+    },
+    onSettled: () => {
+      setTimeout(() => setMessage(""), 3000);
+    },
+  });
 
-  const handleUpdatePost = async (updatedPost) => {
-    try {
-      const postUpdated = await updatePost(updatedPost.id, updatedPost);
-      setPosts((prevPosts) =>
-        prevPosts.map((post) =>
-          post.id === updatedPost.id ? postUpdated : post
+  const handleUpdatePost = useMutation({
+    mutationFn: updatePost,
+    onSuccess: (updatedPost) => {
+      queryClient.setQueryData(["posts"], (oldPosts = []) =>
+        oldPosts.map((post) =>
+          post.id === updatedPost.id ? updatedPost : post
         )
       );
       setEditingPost(null);
       setMessage("Post atualizado com sucesso!");
-    } catch (error) {
-      console.error("Erro ao atualizar post:", error);
+    },
+    onError: () => {
       setMessage("Erro ao atualizar o post. Tente novamente.");
-    }
-    setTimeout(() => setMessage(""), 3000);
-  };
+    },
+    onSettled: () => {
+      setTimeout(() => setMessage(""), 3000);
+    },
+  });
 
-  const handleDeletePost = async (id) => {
-    try {
-      await deletePost(id);
-      setPosts((prevPosts) => prevPosts.filter((post) => post.id !== id));
-      setMessage("Post escluído com sucesso!");
-    } catch (error) {
-      console.error("Erro ao excluir post:", error);
+  const handleDeletePost = useMutation({
+    mutationFn: deletePost,
+    onSuccess: (_, id) => {
+      queryClient.setQueryData(["posts"], (oldPosts = []) =>
+        oldPosts.filter((post) => post.id !== id)
+      );
+      setMessage("Post excluído com sucesso!");
+    },
+    onError: () => {
       setMessage("Erro ao excluir o post. Tente novamente.");
-    }
-    setTimeout(() => setMessage(""), 3000);
-  };
+    },
+    onSettled: () => {
+      setTimeout(() => setMessage(""), 3000);
+    },
+  });
+
+  if (isLoading) return <div>Carregando...</div>;
+  if (error) return <div>Erro ao carregar posts: {error.message}</div>;
 
   return (
     <div className="min-h-screen bg-gray-100 p-4">
@@ -79,14 +98,18 @@ export function App() {
           </div>
         )}
         <PostForm
-          onSubmit={editingPost ? handleUpdatePost : handleCreatePost}
+          onSubmit={
+            editingPost
+              ? (updatedPost) => handleUpdatePost.mutate(updatedPost)
+              : (newPost) => handleCreatePost.mutate(newPost)
+          }
           editingPost={editingPost}
           setEditingPost={setEditingPost}
         />
         <PostList
           posts={posts}
           onEdit={setEditingPost}
-          onDelete={handleDeletePost}
+          onDelete={(id) => handleDeletePost.mutate(id)}
         />
       </div>
     </div>
