@@ -43,7 +43,10 @@ export function App() {
   });
 
   const handleUpdatePost = useMutation({
-    mutationFn: updatePost,
+    mutationFn: (updatedPost) =>
+      updatedPost.id <= 100
+        ? Promise.resolve(updatedPost)
+        : updatePost(updatedPost.id, updatedPost),
     onSuccess: (updatedPost) => {
       queryClient.setQueryData(["posts"], (oldPosts = []) =>
         oldPosts.map((post) =>
@@ -54,7 +57,7 @@ export function App() {
       setMessage("Post atualizado com sucesso!");
     },
     onError: () => {
-      setMessage("Erro ao atualizar o post. Tente novamente.");
+      setMessage("Erro ao atualizar post. Tente novamente.");
     },
     onSettled: () => {
       setTimeout(() => setMessage(""), 3000);

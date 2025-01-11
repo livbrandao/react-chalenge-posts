@@ -23,6 +23,10 @@ export async function createPost(newPost) {
 }
 
 export async function updatePost(id, updatedPost) {
+  if (id > 100) {
+    return Promise.resolve(updatedPost);
+  }
+
   const response = await fetch(`${API_URL}/posts/${id}`, {
     method: "PUT",
     headers: {
@@ -30,6 +34,7 @@ export async function updatePost(id, updatedPost) {
     },
     body: JSON.stringify(updatedPost),
   });
+
   if (!response.ok) {
     throw new Error("Erro ao atualizar post");
   }
