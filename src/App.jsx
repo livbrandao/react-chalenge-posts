@@ -28,7 +28,7 @@ export function App() {
     onSuccess: (createdPost) => {
       queryClient.setQueryData(["posts"], (oldPosts) => {
         if (oldPosts) {
-          return [...oldPosts, createdPost];
+          return [createdPost, ...oldPosts];
         }
         return [createdPost];
       });
@@ -38,7 +38,7 @@ export function App() {
       setMessage("Erro ao criar o post. Tente novamente.");
     },
     onSettled: () => {
-      setTimeout(() => setMessage(""), 3000);
+      setTimeout(() => setMessage(""), 8000);
     },
   });
 
@@ -60,7 +60,7 @@ export function App() {
       setMessage("Erro ao atualizar post. Tente novamente.");
     },
     onSettled: () => {
-      setTimeout(() => setMessage(""), 3000);
+      setTimeout(() => setMessage(""), 8000);
     },
   });
 
@@ -76,7 +76,7 @@ export function App() {
       setMessage("Erro ao excluir o post. Tente novamente.");
     },
     onSettled: () => {
-      setTimeout(() => setMessage(""), 3000);
+      setTimeout(() => setMessage(""), 8000);
     },
   });
 
