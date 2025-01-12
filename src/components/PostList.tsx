@@ -1,8 +1,21 @@
 import { useState } from "react";
 import PostItem from "./PostItem";
 import SearchFilter from "./SearchFilter";
+import { Post } from "../types";
 
-const PostList = ({ posts, onEdit, onDelete }) => {
+interface PostListProps {
+  posts: Post[];
+  onEdit: (post: Post) => void;
+  onDelete: (id: number) => void;
+  isDeleting: boolean;
+}
+
+const PostList: React.FC<PostListProps> = ({
+  posts,
+  onEdit,
+  onDelete,
+  isDeleting,
+}) => {
   const postsPerPage = 5;
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
@@ -20,11 +33,11 @@ const PostList = ({ posts, onEdit, onDelete }) => {
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
   const currentPosts = filteredPosts.slice(indexOfFirstPost, indexOfLastPost);
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+  const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
   const totalPages = Math.ceil(filteredPosts.length / postsPerPage);
 
   return (
-    <div>
+    <div className="mt-10">
       <SearchFilter searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
 
       {filteredPosts.length === 0 ? (
@@ -36,7 +49,7 @@ const PostList = ({ posts, onEdit, onDelete }) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {currentPosts.map((post) => (
               <PostItem
-                key={post.id}
+                key={post.id ?? 0}
                 post={post}
                 onEdit={onEdit}
                 onDelete={onDelete}
@@ -44,7 +57,7 @@ const PostList = ({ posts, onEdit, onDelete }) => {
             ))}
           </div>
 
-          <div className="flex justify-center mt-4">
+          <div className="flex justify-center mt-10">
             <button
               onClick={() => paginate(currentPage - 1)}
               disabled={currentPage === 1}
@@ -63,6 +76,13 @@ const PostList = ({ posts, onEdit, onDelete }) => {
               Próxima
             </button>
           </div>
+
+          {/* Indicador de exclusão em andamento */}
+          {isDeleting && (
+            <div className="flex justify-center mt-4 text-gray-500">
+              Excluindo... Por favor, aguarde.
+            </div>
+          )}
         </>
       )}
     </div>

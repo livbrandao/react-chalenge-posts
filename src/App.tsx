@@ -1,78 +1,77 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import {
-  getPosts,
-  createPost,
-  updatePost,
-  deletePost,
-} from "./services/api.js";
+import { getPosts, createPost, updatePost, deletePost } from "./services/api";
 import PostList from "./components/PostList";
+import { Post } from "./types";
 import PostForm from "./components/PostForm";
 
 export function App() {
-  const [editingPost, setEditingPost] = useState(null); // Armazena o post em edição
-  const [message, setMessage] = useState(""); // Mensagem de feedback (sucesso ou erro)
-  const queryClient = useQueryClient(); // Para controlar o cache de dados de posts
+  const [editingPost, setEditingPost] = useState<Post | null>(null);
+  const [message, setMessage] = useState<string>("");
+  const queryClient = useQueryClient();
 
   const {
     data: posts,
     isLoading,
     error,
-  } = useQuery({
+  } = useQuery<Post[]>({
     queryKey: ["posts"],
     queryFn: getPosts,
   });
 
-  const handleCreatePost = useMutation({
+  const handleCreatePost = useMutation<Post, Error, Post>({
     mutationFn: createPost,
     onSuccess: (createdPost) =>
       handlePostMutationSuccess(createdPost, "criado"),
-    onError: () => handlePostMutationError("criar"),
+    onError: (error: Error) => handlePostMutationError("criar", error),
     onSettled: () => setTimeout(() => setMessage(""), 8000),
   });
 
-  const handleUpdatePost = useMutation({
-    mutationFn: (updatedPost) =>
-      updatedPost.id <= 100
+  const handleUpdatePost = useMutation<Post, Error, Post>({
+    mutationFn: (updatedPost: Post) =>
+      (updatedPost.id ?? 0) <= 100
         ? Promise.resolve(updatedPost)
-        : updatePost(updatedPost.id, updatedPost),
+        : updatePost(updatedPost.id ?? 0, updatedPost),
     onSuccess: (updatedPost) =>
       handlePostMutationSuccess(updatedPost, "atualizado"),
-    onError: () => handlePostMutationError("atualizar"),
+    onError: (error: Error) => handlePostMutationError("atualizar", error),
     onSettled: () => setTimeout(() => setMessage(""), 8000),
   });
 
-  const handleDeletePost = useMutation({
-    mutationFn: deletePost,
-    onSuccess: (_, id) => {
-      queryClient.setQueryData(["posts"], (oldPosts = []) =>
+  const handleDeletePost = useMutation<void, Error, number>({
+    mutationFn: (id: number) => deletePost(id),
+    onSuccess: (_, id: number) => {
+      queryClient.setQueryData<Post[]>(["posts"], (oldPosts = []) =>
         oldPosts.filter((post) => post.id !== id)
       );
       setMessage("Post excluído com sucesso!");
     },
-    onError: () => setMessage("Erro ao excluir o post. Tente novamente."),
+    onError: (error: Error) =>
+      setMessage(`Erro ao excluir o post: ${error.message}`),
     onSettled: () => setTimeout(() => setMessage(""), 8000),
   });
 
-  // Abstração para tratamento de sucesso na mutação
-  const handlePostMutationSuccess = (post, action) => {
-    queryClient.setQueryData(["posts"], (oldPosts = []) =>
+  const isMutating =
+    handleCreatePost.status === "pending" ||
+    handleUpdatePost.status === "pending" ||
+    handleDeletePost.status === "pending";
+
+  const handlePostMutationSuccess = (post: Post, action: string) => {
+    queryClient.setQueryData<Post[]>(["posts"], (oldPosts = []) =>
       action === "criado"
-        ? [post, ...oldPosts] // Adiciona post criado no começo
+        ? [post, ...oldPosts]
         : oldPosts.map((existingPost) =>
             existingPost.id === post.id ? post : existingPost
           )
     );
-    setEditingPost(null); // Limpa post em edição
+    setEditingPost(null);
     setMessage(`Post ${action} com sucesso!`);
   };
 
-  // Abstração para tratamento de erro na mutação
-  const handlePostMutationError = (action) => {
-    setMessage(`Erro ao ${action} o post. Tente novamente.`);
+  const handlePostMutationError = (action: string, error: Error) => {
+    setMessage(`Erro ao ${action} o post. ${error.message}`);
   };
 
-  // Exibição enquanto carrega ou em caso de erro
   if (isLoading) return <Spinner />;
   if (error) return <div>Erro ao carregar posts: {error.message}</div>;
 
@@ -99,28 +98,25 @@ export function App() {
         <PostForm
           onSubmit={
             editingPost
-              ? (updatedPost) => handleUpdatePost.mutate(updatedPost)
-              : (newPost) => handleCreatePost.mutate(newPost)
+              ? (updatedPost: Post) => handleUpdatePost.mutate(updatedPost)
+              : (newPost: Post) => handleCreatePost.mutate(newPost)
           }
           editingPost={editingPost}
           setEditingPost={setEditingPost}
-          isSubmitting={
-            handleCreatePost.isLoading || handleUpdatePost.isLoading
-          }
+          isSubmitting={isMutating}
         />
 
         <PostList
-          posts={posts}
+          posts={posts || []}
           onEdit={setEditingPost}
-          onDelete={(id) => handleDeletePost.mutate(id)}
-          isDeleting={handleDeletePost.isLoading}
+          onDelete={(id: number) => handleDeletePost.mutate(id)}
+          isDeleting={handleDeletePost.status === "pending"}
         />
       </div>
     </div>
   );
 }
 
-// Componente de Spinner (carregamento)
 const Spinner = () => (
   <div className="flex justify-center items-center h-screen">
     <div className="w-12 h-12 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>

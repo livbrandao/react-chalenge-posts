@@ -1,6 +1,8 @@
+import { Post } from "../types";
+
 const API_URL = "https://jsonplaceholder.typicode.com";
 
-export async function getPosts() {
+export async function getPosts(): Promise<Post[]> {
   const response = await fetch(`${API_URL}/posts`);
   if (!response.ok) {
     throw new Error("Erro ao buscar posts");
@@ -8,7 +10,7 @@ export async function getPosts() {
   return response.json();
 }
 
-export async function createPost(newPost) {
+export async function createPost(newPost: Post): Promise<Post> {
   const response = await fetch(`${API_URL}/posts`, {
     method: "POST",
     headers: {
@@ -22,7 +24,7 @@ export async function createPost(newPost) {
   return response.json();
 }
 
-export async function updatePost(id, updatedPost) {
+export async function updatePost(id: number, updatedPost: Post): Promise<Post> {
   if (id > 100) {
     return Promise.resolve(updatedPost);
   }
@@ -41,12 +43,12 @@ export async function updatePost(id, updatedPost) {
   return response.json();
 }
 
-export async function deletePost(id) {
+export async function deletePost(id: number): Promise<void> {
   const response = await fetch(`${API_URL}/posts/${id}`, {
     method: "DELETE",
   });
   if (!response.ok) {
     throw new Error("Erro ao excluir post");
   }
-  return response.json();
+  return;
 }

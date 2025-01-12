@@ -1,25 +1,35 @@
-import React, { useState } from "react";
+import { Post } from "../types";
 
-const PostItem = ({ post, onEdit, onDelete }) => {
-  const [isDeleting, setIsDeleting] = useState(false);
+interface PostItemProps {
+  post: Post;
+  onEdit: (post: Post) => void;
+  onDelete: (id: number) => void;
+  isDeleting?: boolean;
+}
+
+const PostItem: React.FC<PostItemProps> = ({
+  post,
+  onEdit,
+  onDelete,
+  isDeleting,
+}) => {
   const scrollToTop = () => {
     window.scrollTo(0, 0);
   };
 
-  const handleEdit = (post) => {
-    onEdit(post);
+  const handleEdit = (post: Post) => {
     scrollToTop();
+    onEdit(post);
   };
 
-  const handleDelete = async () => {
-    setIsDeleting(true);
-    await onDelete(post.id);
-    setIsDeleting(false);
+  const handleDelete = (id: number) => {
+    scrollToTop();
+    onDelete(id);
   };
 
   return (
     <div
-      className={`p-4 bg-gray-50 border rounded-lg shadow-sm flex flex-col justify-between ${
+      className={`p-4 bg-gray-50 border rounded-lg shadow-md flex flex-col justify-between ${
         isDeleting ? "bg-gray-200" : ""
       }`}
     >
@@ -39,7 +49,7 @@ const PostItem = ({ post, onEdit, onDelete }) => {
           Editar
         </button>
         <button
-          onClick={handleDelete}
+          onClick={() => handleDelete(post.id ?? 0)}
           disabled={isDeleting}
           className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 text-sm sm:text-base md:text-lg"
         >

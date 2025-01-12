@@ -1,6 +1,14 @@
 import React from "react";
 
-const SearchFilter = ({ searchTerm, setSearchTerm }) => {
+interface SearchFilterProps {
+  searchTerm: string;
+  setSearchTerm: React.Dispatch<React.SetStateAction<string>>;
+}
+
+const SearchFilter: React.FC<SearchFilterProps> = ({
+  searchTerm,
+  setSearchTerm,
+}) => {
   return (
     <div className="mb-4">
       <input

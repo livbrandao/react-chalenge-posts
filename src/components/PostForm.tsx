@@ -1,10 +1,23 @@
 import { useState, useEffect } from "react";
+import React, { FC } from "react";
+import { Post } from "../types";
 
-export default function PostForm({ onSubmit, editingPost, setEditingPost }) {
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState({});
+interface PostFormProps {
+  onSubmit: (post: Post) => void;
+  editingPost: Post | null;
+  setEditingPost: (post: Post | null) => void;
+  isSubmitting: boolean;
+}
+
+const PostForm: FC<PostFormProps> = ({
+  onSubmit,
+  editingPost,
+  setEditingPost,
+}) => {
+  const [title, setTitle] = useState<string>("");
+  const [body, setBody] = useState<string>("");
+  const [loading, setLoading] = useState<boolean>(false);
+  const [errors, setErrors] = useState<{ title?: string; body?: string }>({});
 
   useEffect(() => {
     if (editingPost) {
@@ -18,7 +31,7 @@ export default function PostForm({ onSubmit, editingPost, setEditingPost }) {
   }, [editingPost]);
 
   const validate = () => {
-    const validationErrors = {};
+    const validationErrors: { title?: string; body?: string } = {};
     if (!title.trim()) validationErrors.title = "Preenchimento obrigatório.";
     if (!body.trim()) validationErrors.body = "Preenchimento obrigatório.";
     if (title.length > 100) validationErrors.title = "Máximo 100 caracteres.";
@@ -28,7 +41,7 @@ export default function PostForm({ onSubmit, editingPost, setEditingPost }) {
     return Object.keys(validationErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>): void => {
     e.preventDefault();
     if (!validate()) return;
 
@@ -79,7 +92,7 @@ export default function PostForm({ onSubmit, editingPost, setEditingPost }) {
       <div className="flex flex-col sm:flex-row sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
         <button
           type="submit"
-          className={`w-full md:w-auto px-4 py-2 rounded-lg text-white ${
+          className={`w-full md:w-auto px-10 py-2 rounded-lg text-base text-white ${
             loading
               ? "bg-gray-400 cursor-not-allowed"
               : "bg-blue-500 hover:bg-blue-600"
@@ -106,4 +119,5 @@ export default function PostForm({ onSubmit, editingPost, setEditingPost }) {
       </div>
     </form>
   );
-}
+};
+export default PostForm;
