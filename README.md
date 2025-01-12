@@ -15,11 +15,18 @@ Você deve implementar as funcionalidades de listagem, criação, edição e exc
 
 O objetivo principal do projeto é fornecer uma interface intuitiva para visualizar e pesquisar posts, simulando o ambiente de um blog. A aplicação utiliza componentes React, consumo de APIs simuladas e uma abordagem modular para organização do código.
 
-## **Funcionalidades**
+## **Objetivos e Funcionalidades**
 
-- Listagem de posts com título, conteúdo e metadados.
-- Barra de busca para localizar posts por título.
-- Interface responsiva para uma experiência otimizada em diferentes dispositivos.
+- Exibição de Posts: O sistema exibe uma lista de posts com títulos, conteúdos e metadados, simulando um ambiente de blog.
+- Busca e Filtros: A aplicação implementa uma funcionalidade de busca, permitindo que o usuário encontre posts pelo título.
+- Interface Responsiva: O design foi pensado para ser responsivo, garantindo uma boa experiência em diferentes dispositivos.
+- Estrutura Modular: O projeto foi desenvolvido com base na abordagem de componentes reutilizáveis, promovendo modularidade e escalabilidade do código.
+- Consumindo API: O projeto simula o consumo de uma API para listar os posts, mas pode ser facilmente integrado a uma API fake.
+
+## **Destaques do Projeto**
+
+- Gerenciamento de Estado: Utilização do Hook useState para controle do estado da aplicação, como os dados dos posts e filtros aplicados.
+- Requisições Assíncronas: As requisições são feitas de forma assíncrona para garantir que a interface seja carregada - Componentização: O código foi organizado de forma modular, utilizando componentes para cada parte da interface, o que facilita a manutenção e expansão do sistema.
 
 ## Estrutura final
 
