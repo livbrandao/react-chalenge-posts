@@ -11,6 +11,7 @@ const PostList = ({ posts, onEdit, onDelete }) => {
     return <p className="text-center text-gray-500">Nenhum post encontrado.</p>;
   }
 
+  // Filtra posts pelo título
   const filteredPosts = posts.filter((post) =>
     post.title.toLowerCase().includes(searchTerm.toLowerCase())
   );

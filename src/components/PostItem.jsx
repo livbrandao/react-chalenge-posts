@@ -19,7 +19,7 @@ const PostItem = ({ post, onEdit, onDelete }) => {
 
   return (
     <div
-      className={`p-4 bg-gray-50 border rounded-lg shadow-sm ${
+      className={`p-4 bg-gray-50 border rounded-lg shadow-sm flex flex-col justify-between ${
         isDeleting ? "bg-gray-200" : ""
       }`}
     >

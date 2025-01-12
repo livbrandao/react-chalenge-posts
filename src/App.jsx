@@ -10,9 +10,9 @@ import PostList from "./components/PostList";
 import PostForm from "./components/PostForm";
 
 export function App() {
-  const [editingPost, setEditingPost] = useState(null);
-  const [message, setMessage] = useState("");
-  const queryClient = useQueryClient();
+  const [editingPost, setEditingPost] = useState(null); // Armazena o post em edição
+  const [message, setMessage] = useState(""); // Mensagem de feedback (sucesso ou erro)
+  const queryClient = useQueryClient(); // Para controlar o cache de dados de posts
 
   const {
     data: posts,
@@ -25,21 +25,10 @@ export function App() {
 
   const handleCreatePost = useMutation({
     mutationFn: createPost,
-    onSuccess: (createdPost) => {
-      queryClient.setQueryData(["posts"], (oldPosts) => {
-        if (oldPosts) {
-          return [createdPost, ...oldPosts];
-        }
-        return [createdPost];
-      });
-      setMessage("Post criado com sucesso!");
-    },
-    onError: () => {
-      setMessage("Erro ao criar o post. Tente novamente.");
-    },
-    onSettled: () => {
-      setTimeout(() => setMessage(""), 8000);
-    },
+    onSuccess: (createdPost) =>
+      handlePostMutationSuccess(createdPost, "criado"),
+    onError: () => handlePostMutationError("criar"),
+    onSettled: () => setTimeout(() => setMessage(""), 8000),
   });
 
   const handleUpdatePost = useMutation({
@@ -47,21 +36,10 @@ export function App() {
       updatedPost.id <= 100
         ? Promise.resolve(updatedPost)
         : updatePost(updatedPost.id, updatedPost),
-    onSuccess: (updatedPost) => {
-      queryClient.setQueryData(["posts"], (oldPosts = []) =>
-        oldPosts.map((post) =>
-          post.id === updatedPost.id ? updatedPost : post
-        )
-      );
-      setEditingPost(null);
-      setMessage("Post atualizado com sucesso!");
-    },
-    onError: () => {
-      setMessage("Erro ao atualizar post. Tente novamente.");
-    },
-    onSettled: () => {
-      setTimeout(() => setMessage(""), 8000);
-    },
+    onSuccess: (updatedPost) =>
+      handlePostMutationSuccess(updatedPost, "atualizado"),
+    onError: () => handlePostMutationError("atualizar"),
+    onSettled: () => setTimeout(() => setMessage(""), 8000),
   });
 
   const handleDeletePost = useMutation({
@@ -72,14 +50,29 @@ export function App() {
       );
       setMessage("Post excluído com sucesso!");
     },
-    onError: () => {
-      setMessage("Erro ao excluir o post. Tente novamente.");
-    },
-    onSettled: () => {
-      setTimeout(() => setMessage(""), 8000);
-    },
+    onError: () => setMessage("Erro ao excluir o post. Tente novamente."),
+    onSettled: () => setTimeout(() => setMessage(""), 8000),
   });
 
+  // Abstração para tratamento de sucesso na mutação
+  const handlePostMutationSuccess = (post, action) => {
+    queryClient.setQueryData(["posts"], (oldPosts = []) =>
+      action === "criado"
+        ? [post, ...oldPosts] // Adiciona post criado no começo
+        : oldPosts.map((existingPost) =>
+            existingPost.id === post.id ? post : existingPost
+          )
+    );
+    setEditingPost(null); // Limpa post em edição
+    setMessage(`Post ${action} com sucesso!`);
+  };
+
+  // Abstração para tratamento de erro na mutação
+  const handlePostMutationError = (action) => {
+    setMessage(`Erro ao ${action} o post. Tente novamente.`);
+  };
+
+  // Exibição enquanto carrega ou em caso de erro
   if (isLoading) return <Spinner />;
   if (error) return <div>Erro ao carregar posts: {error.message}</div>;
 
@@ -91,6 +84,8 @@ export function App() {
       <div className="max-w-4xl mx-auto bg-white shadow-md rounded-lg p-6">
         {message && (
           <div
+            role="alert"
+            aria-live="assertive"
             className={`mb-4 p-2 rounded-lg text-center ${
               message.includes("sucesso")
                 ? "bg-green-100 text-green-800"
@@ -100,6 +95,7 @@ export function App() {
             {message}
           </div>
         )}
+
         <PostForm
           onSubmit={
             editingPost
@@ -112,6 +108,7 @@ export function App() {
             handleCreatePost.isLoading || handleUpdatePost.isLoading
           }
         />
+
         <PostList
           posts={posts}
           onEdit={setEditingPost}
@@ -123,6 +120,7 @@ export function App() {
   );
 }
 
+// Componente de Spinner (carregamento)
 const Spinner = () => (
   <div className="flex justify-center items-center h-screen">
     <div className="w-12 h-12 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
