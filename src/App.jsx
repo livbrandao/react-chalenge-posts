@@ -80,7 +80,7 @@ export function App() {
     },
   });
 
-  if (isLoading) return <div>Carregando...</div>;
+  if (isLoading) return <Spinner />;
   if (error) return <div>Erro ao carregar posts: {error.message}</div>;
 
   return (
@@ -108,13 +108,25 @@ export function App() {
           }
           editingPost={editingPost}
           setEditingPost={setEditingPost}
+          isSubmitting={
+            handleCreatePost.isLoading || handleUpdatePost.isLoading
+          }
         />
         <PostList
           posts={posts}
           onEdit={setEditingPost}
           onDelete={(id) => handleDeletePost.mutate(id)}
+          isDeleting={handleDeletePost.isLoading}
         />
       </div>
     </div>
   );
 }
+
+const Spinner = () => (
+  <div className="flex justify-center items-center h-screen">
+    <div className="w-12 h-12 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+  </div>
+);
+
+export default App;
