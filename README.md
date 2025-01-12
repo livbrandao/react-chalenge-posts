@@ -84,7 +84,6 @@ Antes de começar, você precisará ter as seguintes ferramentas instaladas em s
 ## **Instalação**
 
 1. Clone o repositório para a sua máquina local:
-
    ```bash
    git clone https://github.com/livbrandao/react-chalenge-posts.git
    ´´´
@@ -92,16 +91,13 @@ Antes de começar, você precisará ter as seguintes ferramentas instaladas em s
    ```
 
 2. Acesse o diretório do projeto:
-
    ```bash
-   Copiar código
    cd react-chalenge-posts
    ´´´
 
    ```
 
 3. Instale as dependências:
-
    ```bash
    npm install
    ´´´
